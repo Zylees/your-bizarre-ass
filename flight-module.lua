@@ -1,18 +1,16 @@
---Please don't steal the code. You may use the code  if you are a beginner and trying to learn about bodygyro and bodyvelocity to fly (Credits to infinite yield for the source I just made some modifications)
-getgenv().flyspeed = 1
+--[[
+V2
+Please don't steal the code. You may use the code  if you are a beginner and trying to learn about bodygyro and bodyvelocity to fly (Credits to infinite yield for the source I just made some modifications)
+]]
 
 local module = {}
 Players = game:GetService("Players")
 IYMouse = Players.LocalPlayer:GetMouse()
 local CONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
 local lCONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
-function module:FLY()
-	repeat wait() until Players.LocalPlayer and Players.LocalPlayer.Character and Players.LocalPlayer.Character.HumanoidRootPart and Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-	repeat wait() until IYMouse
-	if flyKeyDown or flyKeyUp then flyKeyDown:Disconnect() flyKeyUp:Disconnect() end
+local flyspeed = 1
 
-	local T = Players.LocalPlayer.Character.HumanoidRootPart
-
+local function FLY()
     FLYING = true
     local BG = Instance.new('BodyGyro')
     local BV = Instance.new('BodyVelocity')
@@ -55,17 +53,17 @@ function module:FLY()
 end
 flyKeyDown = IYMouse.KeyDown:Connect(function(KEY)
     if KEY:lower() == 'w' then
-        CONTROL.F = getgenv().flyspeed
+        CONTROL.F = flyspeed
     elseif KEY:lower() == 's' then
-        CONTROL.B = - getgenv().flyspeed
+        CONTROL.B = - flyspeed
     elseif KEY:lower() == 'a' then
-        CONTROL.L = - getgenv().flyspeed
-    elseif KEY:lower() == 'd' then
-        CONTROL.R = getgenv().flyspeed
+        CONTROL.L = - flyspeed
+    elseif KEY:lower() == 'd' then 
+        CONTROL.R = flyspeed
     elseif QEfly and KEY:lower() == 'e' then
-        CONTROL.Q = getgenv().flyspeed*2
+        CONTROL.Q = flyspeed*2
     elseif QEfly and KEY:lower() == 'q' then
-        CONTROL.E = -getgenv().flyspeed*2
+        CONTROL.E = - flyspeed*2
     end
     pcall(function() workspace.CurrentCamera.CameraType = Enum.CameraType.Track end)
 end)
