@@ -1,0 +1,222 @@
+-- UTILITIES --
+local FlightModule = loadstring(game:HttpGet("https://raw.githubusercontent.com/Zylees/your-bizarre-ass/main/flight-module.lua"))() --FLY() NOFLY()
+
+-- VARIABLES --
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
+
+local LocalPlayer = Players.LocalPlayer
+
+old = hookmetamethod(game, "__namecall", function(self,...)
+    if tostring(self) == "Returner" and tostring(getnamecallmethod()) == "InvokeServer" then
+        return "  ___XP DE KEY"
+    end
+    return old(self, ...)
+end)
+
+repeat wait() until ReplicatedFirst:FindFirstChild("ItemSpawn") ~= nil
+local vec3 = getrawmetatable(Vector3.new());
+local oldIndex = rawget(vec3, '__index');
+setreadonly(vec3, false)
+vec3.__index = newcclosure(function(self, idx)
+    if(string.lower(idx) == 'magnitude' and getcallingscript() == ReplicatedFirst.ItemSpawn) then
+        return 0
+    end
+    return oldIndex(self, idx)
+end)
+
+local old; old = hookmetamethod(game, "__namecall", function(self, ...)
+    args = {...}
+        if getnamecallmethod() == "FireServer" and self.Name == "RemoteEvent" and args[1] == "UpdateState" and string.match(tostring(args[2]), "PlatformStanding") then
+            return
+        end
+    return old(self,...)
+end)
+
+local Rayfield = loadstring(game:HttpGet("https://raw.githubusercontent.com/Zylees/ui-stuff/main/rayfield/lib.lua"))()
+
+local Window = Rayfield:CreateWindow({
+    Name = "Your Bizarre Adventure",
+    LoadingTitle = "YBA",
+    LoadingSubtitle = "developer build",
+    ConfigurationSaving = {
+       Enabled = false,
+       FolderName = "",
+       FileName = ""
+    },
+    OldTabLayout = true
+})
+
+local mainTab = Window:CreateTab("Main", "4483362458", true)
+local mainItemFarm = mainTab:CreateSection("Item Farm", false, false)
+
+local items = {}
+function collectItems()
+    for i, v in pairs(game:GetService("Workspace").Item_Spawns.Items:GetChildren()) do
+        if v.PrimaryPart ~= nil then
+            if getgenv().startItemFarming ~= true then break end
+            local prox = v:FindFirstChild("ProximityPrompt")
+            local itemName = v:FindFirstChild("ProximityPrompt").ObjectText
+            if table.find(items, itemName) and v.PrimaryPart:FindFirstChild("PointLight") then
+                print(v.PrimaryPart.Position)
+                LocalPlayer.Character.HumanoidRootPart.CFrame = v.PrimaryPart.CFrame * CFrame.new(0, 0, 2)
+                wait(0.35)
+                fireproximityprompt(prox)
+                wait(0.7)
+            end
+        end
+    end
+end
+
+mainTab:CreateToggle({
+    Name = "Enable Item Farm",
+    CurrentValue = false,
+    SectionParent = mainItemFarm,
+    Callback = function(Value)
+        getgenv().startItemFarming = Value
+        while Value and wait(0.1) do
+            pcall(function()
+                collectItems()
+            end)
+        end
+    end,
+})
+local options = {
+    "Mysterious Arrow",
+    "Lucky Arrow",
+    "Quinton's Glove",
+    "Pure Rokakaka",
+    "Rokakaka",
+    "Ancient Scroll",
+    "Dio's Diary",
+    "Rib Cage of The Saint's Corpse",
+    "Steel Ball",
+    "Zeppeli's Headband",
+    "Diamond",
+    "Gold Coin"
+}
+
+local mainItemSelection = mainTab:CreateSection("Item Selection", false, false)
+
+for i, v in pairs(options) do
+    mainTab:CreateToggle({
+        Name = v,
+        CurrentValue = false,
+        SectionParent = mainItemSelection,
+        Callback = function(Value)
+            if Value then
+                table.insert(items, v)
+            else
+                local x = table.find(items, v)
+                table.remove(items, x)
+            end
+        end,
+    })
+end
+
+    
+local playerTab = Window:CreateTab("Player", 4483362458, false)
+local playerOptions = playerTab:CreateSection("Player Options") 
+
+mainTab:CreateToggle({
+    Name = "Fly",
+    CurrentValue = false,
+    SectionParent = playerOptions,
+    Callback = function(Value)
+        if Value then FlightModule:FLY() else FlightModule:NOFLY() end
+    end,
+})
+
+local miscTab = Window:CreateTab("Misc", "13075651575", true)
+local miscItemUsage = miscTab:CreateSection("Item Usage", false, false)
+
+function worthiness2()
+    local args = {
+        [1] = "LearnSkill",
+        [2] = {
+            ["Skill"] = "Worthiness II",
+            ["SkillTreeType"] = "Character"
+        }
+    }
+
+    LocalPlayer.Character.RemoteFunction:InvokeServer(unpack(args))
+end
+
+function worthiness5()
+    local args = {
+        [1] = "LearnSkill",
+        [2] = {
+            ["Skill"] = "Worthiness V",
+            ["SkillTreeType"] = "Character"
+        }
+    }
+
+    LocalPlayer.Character.RemoteFunction:InvokeServer(unpack(args))
+end
+
+miscTab:CreateButton({
+    Name = "Use Requim Arrow",
+    SectionParent = miscItemUsage,
+    CurrentValue = false,
+    Callback = function(Value) 
+        worthiness5()
+        LocalPlayer.Character.Humanoid:EquipTool(LocalPlayer.Backpack:FindFirstChild("Requim Arrow"))
+        LocalPlayer.Character:WaitForChild("Requim Arrow", 1000)
+        LocalPlayer.Character:FindFirstChild("Requim Arrow"):Activate()
+        LocalPlayer.PlayerGui:WaitForChild("DialogueGui", 1000)
+        LocalPlayer.PlayerGui.DialogueGui.Frame.Options:WaitForChild("Option1", 1000)
+        firesignal(LocalPlayer.PlayerGui.DialogueGui.Frame.Options.Option1.TextButton.MouseButton1Click)
+    end
+})
+
+miscTab:CreateButton({
+    Name = "Use Mysterious Arrow",
+    SectionParent = miscItemUsage,
+    CurrentValue = false,
+    Callback = function(Value) 
+        worthiness2()
+        LocalPlayer.Character.Humanoid:EquipTool(LocalPlayer.Backpack:FindFirstChild("Mysterious Arrow"))
+        LocalPlayer.Character:WaitForChild("Mysterious Arrow", 1000)
+        LocalPlayer.Character:FindFirstChild("Mysterious Arrow"):Activate()
+        LocalPlayer.PlayerGui:WaitForChild("DialogueGui", 1000)
+        LocalPlayer.PlayerGui.DialogueGui.Frame.Options:WaitForChild("Option1", 1000)
+        firesignal(LocalPlayer.PlayerGui.DialogueGui.Frame.Options.Option1.TextButton.MouseButton1Click)
+        print("Completed")
+    end
+})
+
+miscTab:CreateButton({
+    Name = "Use Rib Cage of the Saint's Corpse",
+    SectionParent = miscItemUsage,
+    CurrentValue = false,
+    Callback = function(Value) 
+        worthiness5()
+        local args = {
+            [1] = "EndDialogue",
+            [2] = {
+                ["NPC"] = "Rib Cage of The Saint's Corpse",
+                ["Option"] = "Option1",
+                ["Dialogue"] = "Dialogue2"
+            }
+        }
+
+        game:GetService("Players").LocalPlayer.Character.RemoteEvent:FireServer(unpack(args))
+    end
+})
+
+
+miscTab:CreateButton({
+    Name = "Use Rokakaka",
+    SectionParent = miscItemUsage,
+    CurrentValue = false,
+    Callback = function(Value) 
+        worthiness2()
+        LocalPlayer.Character.Humanoid:EquipTool(LocalPlayer.Backpack:FindFirstChild("Rokakaka"))
+        LocalPlayer.Character:WaitForChild("Rokakaka", 1000)
+        LocalPlayer.Character:FindFirstChild("Rokakaka"):Activate()
+        LocalPlayer.PlayerGui:WaitForChild("DialogueGui", 1000)
+        LocalPlayer.PlayerGui.DialogueGui.Frame.Options:WaitForChild("Option1", 1000)
+        firesignal(LocalPlayer.PlayerGui.DialogueGui.Frame.Options.Option1.TextButton.MouseButton1Click)
+    end
+})
